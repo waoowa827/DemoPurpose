@@ -1,0 +1,19 @@
+{
+  "name": "Android",
+  "os": "JB",
+  "AllVersion": {
+    "base": 1.0,
+    "cupCake": 2.0
+  },
+  "AndroidVersion": [
+    {
+      "mobile": "HTC",
+      "cost": 5000
+    },
+    {
+    "mobile": "Samsung",
+      "cost" : 10000
+    }
+  ]
+
+}

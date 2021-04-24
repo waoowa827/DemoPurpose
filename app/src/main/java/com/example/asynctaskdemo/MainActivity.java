@@ -1,0 +1,340 @@
+package com.example.asynctaskdemo;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NotificationCompat;
+
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import dto.My;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
+import com.google.gson.Gson;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.io.InputStream;
+import java.util.List;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+public class MainActivity extends AppCompatActivity {
+
+    String TAG="MainActivity";
+    MyBroadcastReceiver myBroadcastReceiver=new MyBroadcastReceiver();
+    private Button button,service_btn,button1;
+    private EditText time,count;
+    private TextView finalResult,text;
+    ListView listView;
+   /* int emp_id;
+    String empName="";
+    static String ceoName="";*/
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        Emp_Demo empAshish=new Emp_Demo();
+        Emp_Demo empDip=new Emp_Demo();
+        empAshish.setEmp_id(1);
+        empAshish.setEmp_name("Ashish");
+        empAshish.setEmp_ceo("MP Kumar");
+
+        empDip.setEmp_id(2);
+        empDip.setEmp_name("Vimal");
+        empDip.setEmp_ceo("CP Gurnani");
+
+        empAshish.displayDisplay();
+        empDip.displayDisplay();
+
+        IntentFilter intentFilter=new IntentFilter();
+        intentFilter.addAction(getIntent().ACTION_AIRPLANE_MODE_CHANGED);
+        this.registerReceiver(myBroadcastReceiver,intentFilter);
+
+        button1=(Button)findViewById(R.id.button);
+
+
+        Toast.makeText(this, "hello bro", Toast.LENGTH_SHORT).show();
+        Log.v(TAG,"onCreate");
+        listView = findViewById(R.id.listViewHeroes);
+        getHeroes();
+
+        NotificationManager notificationManager = (NotificationManager)
+                getSystemService(NOTIFICATION_SERVICE);
+
+        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this);
+        mBuilder.setDefaults(Notification.DEFAULT_LIGHTS | Notification.DEFAULT_SOUND);
+
+        ButterKnife.inject(this);
+
+        button1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent=new Intent(MainActivity.this,LoginPage.class);
+                startActivity(intent);
+                //sendNotification();
+            }
+        });
+        parseUsingGson(readJsonFromAsset());
+        /*StringBuilder stringBuilder=new StringBuilder();
+        try {
+
+            InputStream fileInputStream= getAssets().open("my.json");
+            while (true){
+                int ch=fileInputStream.read();
+                if (ch == -1)
+                break;
+                else {
+                    stringBuilder.append((char)ch);
+                }
+            }
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+
+        parseUsingJsonObjectGson(stringBuilder.toString());*/
+
+        time = (EditText) findViewById(R.id.in_time);
+        button = (Button) findViewById(R.id.btn_run);
+        finalResult = (TextView) findViewById(R.id.tv_result);
+        count = (EditText) findViewById(R.id.count);
+        text = (TextView) findViewById(R.id.text);
+        service_btn=(Button) findViewById(R.id.service_btn);
+
+         service_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent=new Intent( getApplicationContext(), ServiceClass.class );
+                startService(intent);
+            }
+        });
+
+
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AsyncTaskRunner runner = new AsyncTaskRunner();
+                String sleepTime = time.getText().toString();
+                runner.execute(sleepTime);
+            }
+        });
+    }
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.v("TAG","onPause");
+    }
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.v("TAG","onStop");
+    }
+    public void sendNotification() {
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
+        builder.setSmallIcon(android.R.drawable.ic_dialog_alert);
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.journaldev.com/"));
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
+        builder.setContentIntent(pendingIntent);
+        builder.setLargeIcon(BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher));
+        builder.setContentTitle("Notifications Title");
+        builder.setContentText("Your notification content here.");
+        builder.setSubText("Tap to view the website.");
+
+
+        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+
+        // Will display the notification in the notification bar
+        notificationManager.notify(1, builder.build());
+        Log.v("TechM","send notification is working"+ notificationManager);
+    }
+    @OnClick(R.id.button2)
+    public void cancelNotification() {
+
+        String ns = Context.NOTIFICATION_SERVICE;
+        NotificationManager nMgr = (NotificationManager) getApplicationContext().getSystemService(ns);
+        nMgr.cancel(1);
+    }
+    private void getHeroes() {
+
+        Call<List<Hero>> call = RetrofitClient.getInstance().getMyApi().getHeroes();
+        call.enqueue(new Callback<List<Hero>>() {
+            @Override
+            public void onResponse(Call<List<Hero>> call, Response<List<Hero>> response) {
+                List<Hero> heroList = response.body();
+
+                //Creating an String array for the ListView
+                String[] heroes = new String[heroList.size()];
+
+                //looping through all the heroes and inserting the names inside the string array
+                for (int i = 0; i < heroList.size(); i++) {
+                    heroes[i] = heroList.get(i).getName();
+                }
+
+                //displaying the string array into listview
+                listView.setAdapter(new ArrayAdapter<String>(getApplicationContext(), android.R.layout.simple_list_item_1, heroes));
+            }
+
+            @Override
+            public void onFailure(Call<List<Hero>> call, Throwable t) {
+                Toast.makeText(getApplicationContext(), t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+    private String readJsonFromAsset(){
+        StringBuilder stringBuilder=new StringBuilder();
+        try {
+
+            InputStream fileInputStream= getAssets().open("my.json");
+            while (true){
+                int ch=fileInputStream.read();
+                if (ch == -1)
+                    break;
+                else {
+                    stringBuilder.append((char)ch);
+                }
+            }
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+        return stringBuilder.toString();
+    }
+
+    private class AsyncTaskRunner extends AsyncTask<String, String, String> {
+
+        private String resp;
+        ProgressDialog progressDialog;
+
+        @Override
+        protected String doInBackground(String... params) {
+            publishProgress("Sleeping..."); // Calls onProgressUpdate()
+            try {
+                int time = Integer.parseInt(params[0]) * 1000;
+
+                Thread.sleep(time);
+                resp = "Slept for " + params[0] + " seconds";
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+                resp = e.getMessage();
+            } catch (Exception e) {
+                e.printStackTrace();
+                resp = e.getMessage();
+            }
+            return resp;
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            // execution of result of Long time consuming operation
+            progressDialog.dismiss();
+            finalResult.setText(result);
+        }
+
+
+        @Override
+        protected void onPreExecute() {
+            progressDialog = ProgressDialog.show(MainActivity.this,
+                    "ProgressDialog",
+                    "Wait for "+time.getText().toString()+ " seconds");
+        }
+
+
+        @Override
+        protected void onProgressUpdate(String... text) {
+            finalResult.setText(text[0]);
+
+        }
+    }
+    private void parseUsingJsonObject(String json){
+
+        StringBuilder stringBuilder= new StringBuilder();
+        try {
+            JSONObject jsonObject=new JSONObject(json);
+            String name=jsonObject.getString("name");
+            System.out.println("name from json: " + name);
+            Log.v("NAME" ,name);
+
+            JSONObject jsonObject1=jsonObject.getJSONObject("AllVersion");
+            String base=jsonObject1.getString("base");
+            Log.v("base" ,base);
+
+            JSONArray jsonObject2=jsonObject.getJSONArray("AndroidVersion");
+            for (int i=0;i<jsonObject2.length();i++){
+
+                JSONObject loopObj=jsonObject2.getJSONObject(i);
+                String mobile=loopObj.getString("mobile");
+                String cost=loopObj.getString("cost");
+                Log.v("mobile" ,mobile + "cost is: " + cost);
+            }
+
+
+
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+
+
+    }
+    private void parseUsingGson(String json){
+
+        Gson gson=new Gson();
+        My my=gson.fromJson(json,My.class);
+        Log.v("TechM", String.valueOf(my));
+    }
+}
+class Emp_Demo{
+    private int emp_id;
+    private String emp_name;
+    private static String emp_ceo;
+
+    public int getEmp_id() {
+        return emp_id;
+    }
+
+    public void setEmp_id(int emp_id) {
+        this.emp_id = emp_id;
+    }
+
+    public String getEmp_name() {
+        return emp_name;
+    }
+
+    public void setEmp_name(String emp_name) {
+        this.emp_name = emp_name;
+    }
+
+    public static String getEmp_ceo() {
+        return emp_ceo;
+    }
+
+    public static void setEmp_ceo(String emp_ceo) {
+        Emp_Demo.emp_ceo = emp_ceo;
+    }
+
+    void displayDisplay(){
+
+        System.out.println("Id is: "+emp_id+ "  Emp name: " + emp_name + "  CEO Name: " +emp_ceo);
+    }
+}

@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Go to Login Page"
+        android:id="@+id/button"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="CANCEL NOTIFICATION"
+        android:id="@+id/button2"
+        android:layout_below="@+id/button"
+        android:layout_alignRight="@+id/button"
+        android:layout_alignEnd="@+id/button"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+
+        <TextView
+            android:id="@+id/tv_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="10pt"
+            android:textColor="#444444"
+            android:layout_alignParentLeft="true"
+            android:layout_marginRight="9dip"
+            android:layout_marginTop="20dip"
+            android:layout_marginLeft="10dip"
+            android:text="Sleep time in Seconds:"/>
+        <EditText
+            android:id="@+id/in_time"
+            android:layout_width="150dip"
+            android:layout_height="wrap_content"
+            android:background="@android:drawable/editbox_background"
+            android:layout_toRightOf="@id/tv_time"
+            android:layout_alignTop="@id/tv_time"
+            android:inputType="number"
+            />
+        <Button
+            android:id="@+id/btn_run"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Run Async task"
+            android:layout_below="@+id/in_time"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="64dp" />
+        <TextView
+            android:id="@+id/tv_result"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="7pt"
+            android:layout_below="@+id/btn_run"
+            android:layout_centerHorizontal="true" />
+
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/btn_run"
+        android:id="@+id/relay"
+        >
+        <TextView
+            android:id="@+id/text"
+            android:layout_width="wrap_content"
+            android:text="Running value is this:"
+            android:layout_height="wrap_content"
+            android:textSize="10pt"
+            android:textColor="#444444"
+            android:layout_alignParentLeft="true"
+            android:background="@android:drawable/editbox_background"
+            android:gravity="center_horizontal"
+
+            />
+
+        <EditText
+            android:id="@+id/count"
+            android:layout_width="wrap_content"
+            android:hint="Count"
+            android:layout_toEndOf="@+id/text"
+            android:layout_marginLeft="50dp"
+            android:layout_height="wrap_content"
+            android:background="@android:drawable/editbox_background"
+            android:inputType="number"
+            />
+
+        <Button
+            android:id="@+id/service_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Run Service"
+            android:layout_below="@+id/count"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="64dp" />
+    </RelativeLayout>>
+
+    <ListView
+        android:id="@+id/listViewHeroes"
+        android:layout_below="@+id/relay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+    </RelativeLayout>
