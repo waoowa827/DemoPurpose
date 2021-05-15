@@ -20,6 +20,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -28,23 +29,35 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.IgnoreExtraProperties;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 import com.google.gson.Gson;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     String TAG="MainActivity";
     MyBroadcastReceiver myBroadcastReceiver=new MyBroadcastReceiver();
-    private Button button,service_btn,button1;
-    private EditText time,count;
+    private Button button,service_btn,button1,save;
+    private EditText time,count,empName;
     private TextView finalResult,text;
     ListView listView;
+    HashMap<Integer,String> map=new HashMap<>();
+    private DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference("Employee");;
    /* int emp_id;
     String empName="";
     static String ceoName="";*/
@@ -53,18 +66,10 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Emp_Demo empAshish=new Emp_Demo();
-        Emp_Demo empDip=new Emp_Demo();
-        empAshish.setEmp_id(1);
-        empAshish.setEmp_name("Ashish");
-        empAshish.setEmp_ceo("MP Kumar");
 
-        empDip.setEmp_id(2);
-        empDip.setEmp_name("Vimal");
-        empDip.setEmp_ceo("CP Gurnani");
-
-        empAshish.displayDisplay();
-        empDip.displayDisplay();
+        mDatabase.child("Name").setValue("Ashish");
+        Query key=mDatabase.orderByKey();
+        Log.v(TAG,"Firebase Instance key is:" +key +" setting value: ");
 
         IntentFilter intentFilter=new IntentFilter();
         intentFilter.addAction(getIntent().ACTION_AIRPLANE_MODE_CHANGED);
@@ -73,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
         button1=(Button)findViewById(R.id.button);
 
 
-        Toast.makeText(this, "hello bro", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "hello bro" + mDatabase, Toast.LENGTH_LONG).show();
         Log.v(TAG,"onCreate");
         listView = findViewById(R.id.listViewHeroes);
         getHeroes();
@@ -115,11 +120,15 @@ public class MainActivity extends AppCompatActivity {
         parseUsingJsonObjectGson(stringBuilder.toString());*/
 
         time = (EditText) findViewById(R.id.in_time);
+        empName = (EditText) findViewById(R.id.emp_name);
         button = (Button) findViewById(R.id.btn_run);
         finalResult = (TextView) findViewById(R.id.tv_result);
         count = (EditText) findViewById(R.id.count);
         text = (TextView) findViewById(R.id.text);
         service_btn=(Button) findViewById(R.id.service_btn);
+        save=(Button) findViewById(R.id.addEmp);
+        save.setOnClickListener(this);
+
 
          service_btn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -220,6 +229,28 @@ public class MainActivity extends AppCompatActivity {
         return stringBuilder.toString();
     }
 
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()){
+            case R.id.addEmp:
+                submit();
+                break;
+        }
+    }
+
+    private void submit() {
+        Model_EmpName model_empName=new Model_EmpName(empName.getText().toString(),"1");
+        if (empName.getText().toString().isEmpty()){
+            Toast.makeText(this, "Please Enter employee Name!", Toast.LENGTH_SHORT).show();
+        }else {
+            //model_empName.setName(empName.getText().toString());
+            //String employee=empName.getText().toString();
+            String userId=mDatabase.push().getKey();
+            mDatabase.child(userId).setValue(model_empName);
+            Log.v(TAG,"user id is: " + userId);
+        }
+    }
+
     private class AsyncTaskRunner extends AsyncTask<String, String, String> {
 
         private String resp;
@@ -301,39 +332,5 @@ public class MainActivity extends AppCompatActivity {
         Gson gson=new Gson();
         My my=gson.fromJson(json,My.class);
         Log.v("TechM", String.valueOf(my));
-    }
-}
-class Emp_Demo{
-    private int emp_id;
-    private String emp_name;
-    private static String emp_ceo;
-
-    public int getEmp_id() {
-        return emp_id;
-    }
-
-    public void setEmp_id(int emp_id) {
-        this.emp_id = emp_id;
-    }
-
-    public String getEmp_name() {
-        return emp_name;
-    }
-
-    public void setEmp_name(String emp_name) {
-        this.emp_name = emp_name;
-    }
-
-    public static String getEmp_ceo() {
-        return emp_ceo;
-    }
-
-    public static void setEmp_ceo(String emp_ceo) {
-        Emp_Demo.emp_ceo = emp_ceo;
-    }
-
-    void displayDisplay(){
-
-        System.out.println("Id is: "+emp_id+ "  Emp name: " + emp_name + "  CEO Name: " +emp_ceo);
     }
 }

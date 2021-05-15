@@ -42,7 +42,6 @@ public class LoginPage extends AppCompatActivity {
                 finish();
             }
         });
-
     }
 
     private void init() {

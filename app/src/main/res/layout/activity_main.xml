@@ -50,6 +50,8 @@
             android:layout_alignTop="@id/tv_time"
             android:inputType="number"
             />
+
+
         <Button
             android:id="@+id/btn_run"
             android:layout_width="wrap_content"
@@ -97,10 +99,33 @@
             android:inputType="number"
             />
 
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/count"
+            >
+            <EditText
+                android:id="@+id/emp_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingRight="40dp"
+                android:hint="Enter Employee Name"
+                android:singleLine="true"
+                android:background="@android:drawable/editbox_background"
+                />
+
+            <Button
+                android:id="@+id/addEmp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Save" />
+        </LinearLayout>
+
         <Button
             android:id="@+id/service_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:visibility="gone"
             android:text="Run Service"
             android:layout_below="@+id/count"
             android:layout_centerHorizontal="true"
