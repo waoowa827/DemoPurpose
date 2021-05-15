@@ -71,6 +71,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Query key=mDatabase.orderByKey();
         Log.v(TAG,"Firebase Instance key is:" +key +" setting value: ");
 
+        System.out.println("Git practicing: ");
         IntentFilter intentFilter=new IntentFilter();
         intentFilter.addAction(getIntent().ACTION_AIRPLANE_MODE_CHANGED);
         this.registerReceiver(myBroadcastReceiver,intentFilter);
