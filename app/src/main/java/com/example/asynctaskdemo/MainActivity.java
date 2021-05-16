@@ -69,6 +69,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         mDatabase.child("Name").setValue("Ashish");
         Query key=mDatabase.orderByKey();
+        System.out.println("key is created: ");
         Log.v(TAG,"Firebase Instance key is:" +key +" setting value: ");
 
         System.out.println("Git practicing: ");
